@@ -1,6 +1,7 @@
 const view = document.querySelector("#view")
+const btnUrl = document.querySelector("#btn-url")
+const inputUrl = document.querySelector("#input-url")
 
-document.addEventListener("DOMContentLoaded", ()=>{
-  console.dir(view);
-  view.style.width = __API__.getViewWidth() + 'px'
-})
+btnUrl.onclick = () => {
+  __API__.setViewUrl(inputUrl.value)
+}

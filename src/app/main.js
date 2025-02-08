@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BaseWindow, WebContentsView } = require('electron')
+const { app, BrowserWindow, WebContentsView, ipcMain } = require('electron')
 
 const path = require('node:path')
 const fs = require('fs')
@@ -22,30 +22,44 @@ const createWindow = ()=>{
 
   win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
 
-  const targetPage = new WebContentsView()
-  win.contentView.addChildView(targetPage)
-  targetPage.setBounds(boundsView)
+  const view = new WebContentsView()
+  win.contentView.addChildView(view)
+  view.setBounds(boundsView)
 
-  targetPage.webContents.loadURL('https://github.com')
+  view.webContents.loadURL('https://github.com')
 
 
   win.loadFile("../web/index.html")
   
-  win.webContents.on('did-finish-load', ()=>{
+  view.webContents.on('did-finish-load', ()=>{
     fs.readFile("./src/app/injected-script.js", (err, data)=>{
       if(err) throw err
-      win.webContents.executeJavaScript(data)
+      view.webContents.executeJavaScript(data)
     })
   })
 
   win.webContents.openDevTools()
+  return {
+    view: view,
+    win: win
+  }
+}
+
+const initHandlers = ({ view })=>{
+  ipcMain.on("set-view-url", (event, url)=>{
+   view.webContents.loadURL(url) 
+  })
+}
+
+const startApp = ()=>{
+  initHandlers(createWindow())
 }
 
 app.whenReady().then(()=>{
-  createWindow()
+  startApp()
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) startApp() 
   })
 })
 
