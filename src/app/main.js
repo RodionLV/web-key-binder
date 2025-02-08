@@ -4,7 +4,7 @@ const path = require('node:path')
 const fs = require('fs')
 
 let boundsView = {
-  width: 420,
+  width: 800,
   height: 600,
   y: 0,
   x: 0
@@ -14,7 +14,7 @@ let boundsView = {
 const createWindow = ()=>{
   const win = new BrowserWindow({
     height: 600,
-    width: 1000,
+    width: 1600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -22,13 +22,15 @@ const createWindow = ()=>{
 
   win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
 
-  const view = new WebContentsView()
+  const view = new WebContentsView({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload-view.js')
+    }
+  })
   win.contentView.addChildView(view)
   view.setBounds(boundsView)
 
-  view.webContents.loadURL('https://github.com')
-
-
+  view.webContents.loadURL('https://translate.yandex.com/')
   win.loadFile("../web/index.html")
   
   view.webContents.on('did-finish-load', ()=>{
@@ -37,17 +39,22 @@ const createWindow = ()=>{
       view.webContents.executeJavaScript(data)
     })
   })
-
-  win.webContents.openDevTools()
+ 
+  view.webContents.openDevTools()
+  // win.webContents.openDevTools()
   return {
     view: view,
     win: win
   }
 }
 
-const initHandlers = ({ view })=>{
+const initHandlers = ({ view, win })=>{
   ipcMain.on("set-view-url", (event, url)=>{
    view.webContents.loadURL(url) 
+  })
+
+  ipcMain.on("index-btn", (event, index) => {
+    win.webContents.send('selected-btn', index)
   })
 }
 
