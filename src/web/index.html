@@ -13,11 +13,25 @@
 <div class="app">
   <div id="view"></div>
   
-  <div class="main">
-    <label>Вставте URL необходимой страницы:</label>
-    <input id="input-url"/>
-  
-    <button id="btn-url">Перейти</button>
+  <div class="main main__box">
+    <div class="main__url url f-col">
+      <label>Вставте URL необходимой страницы:</label>
+
+      <div class="url__value f-row">
+        <input id="input-url" class="url__input"/>
+        <button id="btn-url" class="url__btn">Перейти</button>
+      </div>
+    </div>
+
+    <div class="binder">
+      <div class="binder__set-keys">
+        <span id="index-btn" class="binder__index"></span>
+        <input id="input-keys" class="binder__input">
+        <button id="btn-bind" class="binder__btn">Bind</button>
+      </div>
+
+      <div class="binder__list"></div>
+    </div>
   </div>
 </div>
 

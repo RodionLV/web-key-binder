@@ -26,3 +26,21 @@ html, body{
 #view{
   height: 100%;
 }
+
+.main{
+  flex: 1 1 100%;
+}
+.main__box{
+  padding: 1em 2em;
+}
+
+.url__value{
+  display: flex;
+  gap: 0.4em;
+}
+.url__input{
+  flex: 1 1 100%;
+}
+
+
+

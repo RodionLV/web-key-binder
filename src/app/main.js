@@ -1,5 +1,6 @@
-const { app, BrowserWindow, WebContentsView, ipcMain } = require('electron')
+const { app, BrowserWindow, WebContentsView, ipcMain, globalShortcut } = require('electron')
 
+const readline = require('node:readline');
 const path = require('node:path')
 const fs = require('fs')
 
@@ -56,6 +57,10 @@ const initHandlers = ({ view, win })=>{
   ipcMain.on("index-btn", (event, index) => {
     win.webContents.send('selected-btn', index)
   })
+
+  ipcMain.on("bind-keys", (event, keys) => {
+   console.log(keys) 
+  })
 }
 
 const startApp = ()=>{
@@ -68,6 +73,17 @@ app.whenReady().then(()=>{
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) startApp() 
   })
+
+  const ret = globalShortcut.register('X', () => {
+    console.log('X is pressed')
+  })
+
+  if (!ret) {
+    console.log('registration failed')
+  }
+  
+  // Check whether a shortcut is registered.
+  console.log(globalShortcut.isRegistered('X'))
 })
 
 app.on('window-all-closed', () => {
