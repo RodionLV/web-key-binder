@@ -27,7 +27,8 @@ function createWindow() {
   win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
   const view = new WebContentsView({
     webPreferences: {
-      preload: join(__dirname, '../preload/preload-view.js')
+      preload: join(__dirname, '../preload/preload-view.js'),
+      sandbox: false
     }
   })
 
@@ -77,9 +78,21 @@ const initHandlers = ({ view, win }) => {
     win.webContents.send('selected-btn', index)
   })
 
-  ipcMain.on('bind-keys', (event, keys) => {
-    console.log(keys)
-  })
+  ipcMain.on('set-shortcut', (event, { keys, index }) => {
+    const shortcut = keys.join("+")
+    console.log(shortcut)
+    const ret = globalShortcut.register(shortcut, () => {
+      view.webContents.send('active-handle', index) 
+    })
+
+    if(!ret) {
+      console.log('registration failed for shortcut:', shortcut)
+    }
+
+    if(globalShortcut.isRegistered(shortcut)){
+      console.log("registration succesed for shortcut:", shortcut)
+    }
+  }) 
 }
 
 const startApp = () => {
@@ -103,16 +116,6 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) startApp()
   })
 
-  // const ret = globalShortcut.register('X', () => {
-  //   console.log('X is pressed')
-  // })
-
-  // if (!ret) {
-  //   console.log('registration failed')
-  // }
-
-  // // Check whether a shortcut is registered.
-  // console.log(globalShortcut.isRegistered('X'))
 })
 
 app.on('window-all-closed', () => {
