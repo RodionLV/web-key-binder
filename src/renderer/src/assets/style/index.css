@@ -17,5 +17,9 @@ html, body{
   color: var(--font);
 }
 
+#view{
+  flex: 0 0 800px;
+}
+
 
 

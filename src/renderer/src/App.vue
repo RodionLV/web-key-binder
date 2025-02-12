@@ -7,7 +7,8 @@ import { reactive, watch } from 'vue'
 let setup = reactive({
   url: '',
   selectedHandle: null,
-  keys: []
+  keys: [],
+  selectionMode: false
 })
 
 watch(
@@ -20,8 +21,8 @@ window.__API__.onSelectedBtn((value) => {
   console.log(value)
 })
 
-const getIndexToString = (value) => {
-  return value && value.id || "Не выбрано" 
+const getIndexToString = (index) => {
+  return index?.id || index?.classes || "Не выбрано" 
 }
 
 const loadPage = () => {
@@ -30,6 +31,12 @@ const loadPage = () => {
 
 const setShortcut = () => {
   window.__API__.setShortcut({ keys: [...setup.keys], index: {...setup.selectedHandle} })
+}
+
+const toggleSelectionMode = () => {
+  setup.selectionMode = !setup.selectionMode
+
+  window.__API__.setOptions({ selectionMode: setup.selectionMode })
 }
 </script>
 
@@ -46,6 +53,10 @@ const setShortcut = () => {
 
       <div class="binder">
         <div class="f-row">
+          <button @click="toggleSelectionMode">
+            selection mode: {{ setup.selectionMode ? "on" : "off" }}
+          </button>
+
           <div class="binder__lable">Указатель на элемент:</div>
           <div class="binder__index">
             {{ getIndexToString( setup.selectedHandle ) }}

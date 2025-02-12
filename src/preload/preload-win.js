@@ -4,7 +4,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   setViewUrl: (url) => ipcRenderer.send('set-view-url', url),
   setShortcut: (keys) => ipcRenderer.send('set-shortcut', keys),
-  onSelectedBtn: (cb) => ipcRenderer.on('selected-btn', (_event, value) => cb(value))
+  onSelectedBtn: (cb) => ipcRenderer.on('selected-btn', (_event, value) => cb(value)),
+  setOptions: (options) => ipcRenderer.send('options', options)
 }
 
 if (process.contextIsolated) {

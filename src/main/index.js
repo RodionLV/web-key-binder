@@ -1,8 +1,9 @@
 import { app, shell, BrowserWindow, globalShortcut, WebContentsView, ipcMain } from 'electron'
-import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { join } from 'path'
 
-import fs from 'fs'
+import { injectScript, injectCSS } from './inject'
+
 
 let boundsView = {
   width: 800,
@@ -24,7 +25,7 @@ function createWindow() {
     }
   })
 
-  win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
+  // win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
   const view = new WebContentsView({
     webPreferences: {
       preload: join(__dirname, '../preload/preload-view.js'),
@@ -35,14 +36,13 @@ function createWindow() {
   win.contentView.addChildView(view)
   view.setBounds(boundsView)
 
-  view.webContents.loadURL('https://translate.yandex.com/')
-
-  view.webContents.on('did-finish-load', () => {
-    fs.readFile('./src/main/injected-script.js', (err, data) => {
-      if (err) throw err
-      view.webContents.executeJavaScript(data)
+  view
+    .webContents
+    .loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate')
+    .then(()=>{
+      view.webContents.insertCSS(injectCSS())
+      view.webContents.executeJavaScript(injectScript())
     })
-  })
 
   win.on('ready-to-show', () => {
     win.show()
@@ -92,7 +92,11 @@ const initHandlers = ({ view, win }) => {
     if(globalShortcut.isRegistered(shortcut)){
       console.log("registration succesed for shortcut:", shortcut)
     }
-  }) 
+  })
+  
+  ipcMain.on('options', (_e, options) => {
+    view.webContents.send('options', options)
+  })
 }
 
 const startApp = () => {
