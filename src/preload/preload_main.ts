@@ -1,21 +1,24 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
 
-const api = {
+import type { MainApi } from './types/types.ts'
+
+declare const window: {
+  __API__: MainApi
+} & Window
+
+const api: MainApi = {
   setViewUrl: (url) => ipcRenderer.send('set-view-url', url),
   setShortcut: (keys) => ipcRenderer.send('set-shortcut', keys),
-  onSelectedBtn: (cb) => ipcRenderer.on('selected-btn', (_event, value) => cb(value)),
-  setOptions: (options) => ipcRenderer.send('options', options)
+  onSelectedElement: (cb) => ipcRenderer.on('selected-element', (_event, elem) => cb(elem)),
+  setOptions: (options) => ipcRenderer.send('set-options', options)
 }
 
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('__API__', api)
   } catch (error) {
     console.error(error)
   }
 } else {
-  window.electron = electronAPI
   window.__API__ = api
 }

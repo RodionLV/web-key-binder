@@ -4,8 +4,7 @@ import { join } from 'path'
 
 import { injectScript, injectCSS } from './inject'
 
-
-let boundsView = {
+const boundsView = {
   width: 800,
   height: 670,
   y: 0,
@@ -20,7 +19,7 @@ function createWindow() {
     autoHideMenuBar: true,
     // ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/preload-win.js'),
+      preload: join(__dirname, '../preload/preload_main.js'),
       sandbox: false
     }
   })
@@ -28,7 +27,7 @@ function createWindow() {
   // win.webContents.insertCSS(`#view { flex: 0 0 ${boundsView.width}px}`)
   const view = new WebContentsView({
     webPreferences: {
-      preload: join(__dirname, '../preload/preload-view.js'),
+      preload: join(__dirname, '../preload/preload_view.js'),
       sandbox: false
     }
   })
@@ -36,13 +35,10 @@ function createWindow() {
   win.contentView.addChildView(view)
   view.setBounds(boundsView)
 
-  view
-    .webContents
-    .loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate')
-    .then(()=>{
-      view.webContents.insertCSS(injectCSS())
-      view.webContents.executeJavaScript(injectScript())
-    })
+  view.webContents.loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate').then(() => {
+    view.webContents.insertCSS(injectCSS())
+    view.webContents.executeJavaScript(injectScript())
+  })
 
   win.on('ready-to-show', () => {
     win.show()
@@ -79,21 +75,21 @@ const initHandlers = ({ view, win }) => {
   })
 
   ipcMain.on('set-shortcut', (event, { keys, index }) => {
-    const shortcut = keys.join("+")
+    const shortcut = keys.join('+')
     console.log(shortcut)
     const ret = globalShortcut.register(shortcut, () => {
-      view.webContents.send('active-handle', index) 
+      view.webContents.send('active-handle', index)
     })
 
-    if(!ret) {
+    if (!ret) {
       console.log('registration failed for shortcut:', shortcut)
     }
 
-    if(globalShortcut.isRegistered(shortcut)){
-      console.log("registration succesed for shortcut:", shortcut)
+    if (globalShortcut.isRegistered(shortcut)) {
+      console.log('registration succesed for shortcut:', shortcut)
     }
   })
-  
+
   ipcMain.on('options', (_e, options) => {
     view.webContents.send('options', options)
   })
@@ -119,7 +115,6 @@ app.whenReady().then(() => {
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) startApp()
   })
-
 })
 
 app.on('window-all-closed', () => {

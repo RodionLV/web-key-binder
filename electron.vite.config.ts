@@ -4,12 +4,17 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@my-types': resolve('src/types')
+      }
+    }
   },
   preload: {
     build: {
       lib: {
-        entry: ['./src/preload/preload-view.js', './src/preload/preload-win.js']
+        entry: ['./src/preload/preload_view.ts', './src/preload/preload_main.ts']
       }
     },
     plugins: [externalizeDepsPlugin()]
