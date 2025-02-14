@@ -26,7 +26,7 @@ export default defineConfig({
     resolve: {
       alias: {
         // '@my-types': resolve('src/types'),
-        // '@renderer': resolve('src/renderer/src'),
+        '@renderer': resolve('src/renderer/src'),
         '@components': resolve('src/renderer/src/components')
       }
     },

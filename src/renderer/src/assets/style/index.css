@@ -17,6 +17,11 @@ html, body{
   color: var(--font);
 }
 
+button, input, textarea{
+  outline: none;
+  border: none;
+}
+
 #view{
   flex: 0 0 800px;
 }

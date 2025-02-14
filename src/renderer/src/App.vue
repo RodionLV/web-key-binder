@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
 import ShortcutInput from '@components/ShortcutInput.vue'
+import SearchLine from '@components/SearchLine.vue'
 
 import { reactive } from 'vue'
 
@@ -40,7 +41,7 @@ const loadPage = () => {
 }
 
 const setShortcut = () => {
-  binds.push(bind)
+  profile.binds.push(bind)
   window.__API__.setShortcut(bind)
 }
 
@@ -58,9 +59,8 @@ const toggleSelectionMode = () => {
     <div class="menu menu__box">
       <label>
         <div>Вставьте URL необходимой страницы:</div>
-        <input v-model="profile.url" />
+        <search-line v-model="profile.url" @click="loadPage" />
       </label>
-      <ui-button @click="loadPage">Загрузить страницу</ui-button>
 
       <div class="binder">
         <div class="f-row">

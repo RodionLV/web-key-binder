@@ -1,4 +1,7 @@
 :root{
   --bg: #3f3b41;
-  --font: #dadada;
+  --font: #f0f0f0;
+
+  --btn-primary: #af2385;
+  --btn-primary-hover: #aa448b;  
 }
