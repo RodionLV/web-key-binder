@@ -1,15 +1,22 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import type { ViewApi } from './types/types.ts'
+import { IPC_EVENTS } from '../utils/consts.js'
 
 declare const window: {
   __API__: ViewApi
 } & Window
 
 const api: ViewApi = {
-  sendIndexOnButton: (index) => ipcRenderer.send('index-btn', index),
-  onActivate: (cb) => ipcRenderer.on('activate', (_event, index) => cb(index)),
-  onChangeOptions: (cb) => ipcRenderer.on('options', (_event, options) => cb(options))
+  sendBindingElement: (index) =>
+    ipcRenderer.send(IPC_EVENTS.SET_BINDING_ELEMENT, index),
+  onActivate: (cb) =>
+    ipcRenderer.on(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, (_event, index) =>
+      cb(index)
+    ),
+  onChangeOptions: (cb) =>
+    ipcRenderer.on(IPC_EVENTS.ON_CHANGE_OPTIONS, (_event, options) =>
+      cb(options)
+    )
 }
 
 if (process.contextIsolated) {

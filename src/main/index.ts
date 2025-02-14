@@ -1,8 +1,16 @@
-import { app, shell, BrowserWindow, globalShortcut, WebContentsView, ipcMain } from 'electron'
+import {
+  app,
+  shell,
+  BrowserWindow,
+  globalShortcut,
+  WebContentsView,
+  ipcMain
+} from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 
 import { injectScript, injectCSS } from './inject'
+import { IPC_EVENTS } from '../utils/consts'
 
 const boundsView = {
   width: 800,
@@ -35,10 +43,12 @@ function createWindow() {
   win.contentView.addChildView(view)
   view.setBounds(boundsView)
 
-  view.webContents.loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate').then(() => {
-    view.webContents.insertCSS(injectCSS())
-    view.webContents.executeJavaScript(injectScript())
-  })
+  view.webContents
+    .loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate')
+    .then(() => {
+      view.webContents.insertCSS(injectCSS())
+      view.webContents.executeJavaScript(injectScript())
+    })
 
   win.on('ready-to-show', () => {
     win.show()
@@ -66,19 +76,19 @@ function createWindow() {
 }
 
 const initHandlers = ({ view, win }) => {
-  ipcMain.on('set-view-url', (event, url) => {
+  ipcMain.on(IPC_EVENTS.SET_VIEW_URL, (_event, url) => {
     view.webContents.loadURL(url)
   })
 
-  ipcMain.on('index-btn', (event, index) => {
-    win.webContents.send('selected-btn', index)
+  ipcMain.on(IPC_EVENTS.SET_BINDING_ELEMENT, (_event, elem) => {
+    win.webContents.send(IPC_EVENTS.ON_SELECT_ELEMENT, elem)
   })
 
-  ipcMain.on('set-shortcut', (event, { keys, index }) => {
+  ipcMain.on(IPC_EVENTS.SET_SHORTCUT, (_event, { keys, index }) => {
     const shortcut = keys.join('+')
     console.log(shortcut)
     const ret = globalShortcut.register(shortcut, () => {
-      view.webContents.send('active-handle', index)
+      view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, index)
     })
 
     if (!ret) {
@@ -90,7 +100,7 @@ const initHandlers = ({ view, win }) => {
     }
   })
 
-  ipcMain.on('options', (_e, options) => {
+  ipcMain.on(IPC_EVENTS.SET_OPTIONS, (_e, options) => {
     view.webContents.send('options', options)
   })
 }

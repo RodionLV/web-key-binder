@@ -1,31 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
 
 import { reactive, computed } from 'vue'
 
 defineProps({
-  keys: { type: Array, default: [] }
+  keys: { type: Array, default: () => [] }
 })
 
 const emit = defineEmits(['update:keys'])
 
-let mapKeys = reactive({})
-let keysArr = computed(() => getArrKeys(mapKeys))
+const mapKeys = reactive({})
+const keysArr = computed(() => getArrKeys(mapKeys))
 
 const getArrKeys = (mapKeys) => {
-  let arrKeys = Object.keys(mapKeys).filter((k) => mapKeys[k] == true)
+  const arrKeys = Object.keys(mapKeys).filter((k) => mapKeys[k] == true)
 
-  if( typeof(mapKeys['key']) == 'string' ) {
-     arrKeys.push(mapKeys['key'])
-  } 
-  
+  if (typeof mapKeys['key'] == 'string') {
+    arrKeys.push(mapKeys['key'])
+  }
+
   emit('update:keys', arrKeys)
   return arrKeys
 }
 
 const reset = () => {
-  for( let key in mapKeys ) {
-    mapKeys[key] = false 
+  for (const key in mapKeys) {
+    mapKeys[key] = false
   }
 }
 
@@ -55,26 +55,26 @@ const onKeyDown = (event) => {
       {{ keysArr.join(' + ') }}
     </button>
 
-    <ui-button @click="reset" class="shortcut__reset">Сброс</ui-button>
+    <ui-button class="shortcut__reset" @click="reset">Сброс</ui-button>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .shortcut {
-  &__box{
-   display: flex;
-   gap: 0.2em;
+  &__box {
+    display: flex;
+    gap: 0.2em;
   }
 
-  &__reset{
+  &__reset {
     padding: 0.2em 0.6em;
-    border-radius: 0.2em; 
+    border-radius: 0.2em;
     border: none;
   }
 
-  &__input { 
+  &__input {
     outline: none;
-    
+
     padding: 0.2em 0.6em;
 
     flex: 1 1 100%;

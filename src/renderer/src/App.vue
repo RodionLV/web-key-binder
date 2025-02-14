@@ -1,42 +1,53 @@
-<script setup>
+<script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
 import ShortcutInput from '@components/ShortcutInput.vue'
 
-import { reactive, watch } from 'vue'
+import { reactive } from 'vue'
 
-let setup = reactive({
+declare const window: {
+  __API__: MainApi
+} & Window
+
+interface Profile {
+  url: ''
+  viewOptions: ViewOptions
+  binds: BindedElementAndShortcut[]
+}
+
+const profile = reactive<Profile>({
   url: '',
-  selectedHandle: null,
-  keys: [],
-  selectionMode: false
+  viewOptions: {
+    selectionMode: false
+  },
+  binds: []
 })
 
-watch(
-  ()=>setup.keys,
-  ()=>console.log(setup.keys)
-)
+const bind = reactive<BindedElementAndShortcut>({
+  element: undefined,
+  shortcut: []
+})
 
-window.__API__.onSelectedBtn((value) => {
-  setup.selectedHandle = value
-  console.log(value)
+window.__API__.onSelectedElement((elem) => {
+  bind.element = elem
 })
 
 const getIndexToString = (index) => {
-  return index?.id || index?.classes || "Не выбрано" 
+  return index?.id || index?.classes || 'Не выбрано'
 }
 
 const loadPage = () => {
-  window.__API__.setViewUrl(setup.url)
+  window.__API__.setViewUrl(profile.url)
 }
 
 const setShortcut = () => {
-  window.__API__.setShortcut({ keys: [...setup.keys], index: {...setup.selectedHandle} })
+  binds.push(bind)
+  window.__API__.setShortcut(bind)
 }
 
 const toggleSelectionMode = () => {
-  setup.selectionMode = !setup.selectionMode
+  profile.viewOptions.selectionMode = !profile.viewOptions.selectionMode
 
-  window.__API__.setOptions({ selectionMode: setup.selectionMode })
+  window.__API__.setOptions(profile.viewOptions)
 }
 </script>
 
@@ -47,29 +58,30 @@ const toggleSelectionMode = () => {
     <div class="menu menu__box">
       <label>
         <div>Вставьте URL необходимой страницы:</div>
-        <input v-model="setup.url" />
+        <input v-model="profile.url" />
       </label>
       <ui-button @click="loadPage">Загрузить страницу</ui-button>
 
       <div class="binder">
         <div class="f-row">
           <button @click="toggleSelectionMode">
-            selection mode: {{ setup.selectionMode ? "on" : "off" }}
+            selection mode:
+            {{ profile.viewOptions.selectionMode ? 'on' : 'off' }}
           </button>
 
           <div class="binder__lable">Указатель на элемент:</div>
           <div class="binder__index">
-            {{ getIndexToString( setup.selectedHandle ) }}
-          </div>          
+            {{ getIndexToString(bind.element) }}
+          </div>
         </div>
 
-        <shortcut-input v-model:keys="setup.keys"/>
+        <shortcut-input v-model:keys="bind.shortcut" />
 
         <ui-button @click="setShortcut">Добавить</ui-button>
         <div class="binder__list"></div>
       </div>
+    </div>
   </div>
-</div>
 </template>
 
 <style lang="scss">

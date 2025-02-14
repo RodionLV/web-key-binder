@@ -1,8 +1,8 @@
-import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
-import vue from '@vitejs/plugin-vue'
-
-export default defineConfig({
+// electron.vite.config.ts
+import { resolve } from "path";
+import { defineConfig, externalizeDepsPlugin } from "electron-vite";
+import vue from "@vitejs/plugin-vue";
+var electron_vite_config_default = defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
     resolve: {
@@ -15,8 +15,8 @@ export default defineConfig({
     build: {
       lib: {
         entry: [
-          './src/preload/preload_view.ts',
-          './src/preload/preload_main.ts'
+          "./src/preload/preload_view.ts",
+          "./src/preload/preload_main.ts"
         ]
       }
     },
@@ -27,9 +27,12 @@ export default defineConfig({
       alias: {
         // '@my-types': resolve('src/types'),
         // '@renderer': resolve('src/renderer/src'),
-        '@components': resolve('src/renderer/src/components')
+        "@components": resolve("src/renderer/src/components")
       }
     },
     plugins: [vue()]
   }
-})
+});
+export {
+  electron_vite_config_default as default
+};

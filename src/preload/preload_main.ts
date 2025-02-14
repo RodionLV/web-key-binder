@@ -1,16 +1,17 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import type { MainApi } from './types/types.ts'
+import { IPC_EVENTS } from '../utils/consts.js'
 
 declare const window: {
   __API__: MainApi
 } & Window
 
 const api: MainApi = {
-  setViewUrl: (url) => ipcRenderer.send('set-view-url', url),
-  setShortcut: (keys) => ipcRenderer.send('set-shortcut', keys),
-  onSelectedElement: (cb) => ipcRenderer.on('selected-element', (_event, elem) => cb(elem)),
-  setOptions: (options) => ipcRenderer.send('set-options', options)
+  setViewUrl: (url) => ipcRenderer.send(IPC_EVENTS.SET_VIEW_URL, url),
+  setShortcut: (keys) => ipcRenderer.send(IPC_EVENTS.SET_SHORTCUT, keys),
+  onSelectedElement: (cb) =>
+    ipcRenderer.on(IPC_EVENTS.ON_SELECT_ELEMENT, (_event, elem) => cb(elem)),
+  setOptions: (options) => ipcRenderer.send(IPC_EVENTS.SET_OPTIONS, options)
 }
 
 if (process.contextIsolated) {

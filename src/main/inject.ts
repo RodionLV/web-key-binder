@@ -74,7 +74,7 @@ function exec() {
       }
 
       index.id = handleElem.id
-      window.__API__.sendIndexOnButton(index)
+      window.__API__.sendBindingElement(index)
     },
     { capture: true }
   )
