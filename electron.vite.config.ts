@@ -25,9 +25,10 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        // '@my-types': resolve('src/types'),
+        '@my-types': resolve('src/types'),
         '@renderer': resolve('src/renderer/src'),
-        '@components': resolve('src/renderer/src/components')
+        '@components': resolve('src/renderer/src/components'),
+        '@utils': resolve('src/utils')
       }
     },
     plugins: [vue()]

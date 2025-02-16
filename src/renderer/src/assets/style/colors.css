@@ -1,6 +1,8 @@
 :root{
-  --bg: #3f3b41;
+  --bg: linear-gradient(45deg, rgb(46, 32, 54) 70%, rgb(90, 48, 95));
   --font: #f0f0f0;
+
+  --bg-input: white;
 
   --btn-primary: #af2385;
   --btn-primary-hover: #aa448b;  

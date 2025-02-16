@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
+import UiCard from '@components/UI/UiCard.vue'
+import UiLabel from '@components/UI/UiLabel.vue'
+import SelectElement from '@components/SelectElement.vue'
 import ShortcutInput from '@components/ShortcutInput.vue'
 import SearchLine from '@components/SearchLine.vue'
 
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
+import { shallowClone } from '@utils/obj_util'
 
 declare const window: {
   __API__: MainApi
@@ -11,16 +15,16 @@ declare const window: {
 
 interface Profile {
   url: ''
-  viewOptions: ViewOptions
   binds: BindedElementAndShortcut[]
 }
 
 const profile = reactive<Profile>({
   url: '',
-  viewOptions: {
-    selectionMode: false
-  },
   binds: []
+})
+
+const viewOptions = reactive<ViewOptions>({
+  selectionMode: false
 })
 
 const bind = reactive<BindedElementAndShortcut>({
@@ -28,13 +32,12 @@ const bind = reactive<BindedElementAndShortcut>({
   shortcut: []
 })
 
-window.__API__.onSelectedElement((elem) => {
-  bind.element = elem
-})
-
-const getIndexToString = (index) => {
-  return index?.id || index?.classes || 'Не выбрано'
-}
+watch(
+  () => viewOptions.selectionMode,
+  () => {
+    window.__API__.setOptions(shallowClone(viewOptions) as ViewOptions)
+  }
+)
 
 const loadPage = () => {
   window.__API__.setViewUrl(profile.url)
@@ -44,40 +47,35 @@ const setShortcut = () => {
   profile.binds.push(bind)
   window.__API__.setShortcut(bind)
 }
-
-const toggleSelectionMode = () => {
-  profile.viewOptions.selectionMode = !profile.viewOptions.selectionMode
-
-  window.__API__.setOptions(profile.viewOptions)
-}
 </script>
 
 <template>
   <div class="main f-row">
     <div id="view"></div>
 
-    <div class="menu menu__box">
-      <label>
-        <div>Вставьте URL необходимой страницы:</div>
-        <search-line v-model="profile.url" @click="loadPage" />
-      </label>
+    <div class="menu menu__box f-col">
+      <ui-label name="Paste an url of a desired page:">
+        <search-line
+          v-model="profile.url"
+          :placeholder="'https://'"
+          @click="loadPage"
+        />
+      </ui-label>
+
+      <ui-card class="menu__binder f-col">
+        <ui-label name="Select element:">
+          <select-element
+            v-model:element="bind.element"
+            v-model:selection-mode="viewOptions.selectionMode"
+            placeholder="Isn't selected element"
+          />
+        </ui-label>
+      </ui-card>
 
       <div class="binder">
-        <div class="f-row">
-          <button @click="toggleSelectionMode">
-            selection mode:
-            {{ profile.viewOptions.selectionMode ? 'on' : 'off' }}
-          </button>
-
-          <div class="binder__lable">Указатель на элемент:</div>
-          <div class="binder__index">
-            {{ getIndexToString(bind.element) }}
-          </div>
-        </div>
-
         <shortcut-input v-model:keys="bind.shortcut" />
 
-        <ui-button @click="setShortcut">Добавить</ui-button>
+        <ui-button @click="setShortcut">Bind</ui-button>
         <div class="binder__list"></div>
       </div>
     </div>
@@ -88,8 +86,15 @@ const toggleSelectionMode = () => {
 .main {
 }
 .menu {
+  width: 100%;
+
   &__box {
+    gap: 16px;
     padding: 20px 20px;
+  }
+
+  &__binder {
+    gap: 12px;
   }
 }
 </style>

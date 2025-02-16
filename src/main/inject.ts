@@ -1,4 +1,4 @@
-import type { ViewApi } from '../preload/types/types.ts'
+// import type { ViewApi } from '../types/types'
 
 declare const window: {
   __API__: ViewApi
@@ -8,23 +8,31 @@ function exec() {
   console.log('injected script')
 
   const DEEP_SEARCH = 3
-  const HANDLER_TYPES: BindableElementType[] = ['INPUT', 'TEXTAREA', 'BUTTON']
+  const HANDLER_TYPES = ['INPUT', 'TEXTAREA', 'BUTTON']
 
   const checkElementIsBindable = (element: HTMLElement): boolean => {
-    return HANDLER_TYPES.indexOf(element.nodeName as BindableElementType) != -1
+    return HANDLER_TYPES.indexOf(element.nodeName) != -1
   }
 
   const options: ViewOptions = {
     selectionMode: false
   }
 
+  function* generateElementId() {
+    let id = 0
+    while(true) {
+      yield `_uniq_id_${id++}`
+    }
+  }
+  const generatorId = generateElementId()
+
   function setupPage() {
-    const elements = document.querySelectorAll('button, input, textarea')
+    const elements = document.querySelectorAll('textarea, input, button')
     let i = 0
 
     for (const elem of elements) {
       if (elem.id == '') {
-        elem.id = `_uniq_id_${i++}`
+        elem.id = generatorId.next().value
       }
     }
   }
@@ -32,7 +40,6 @@ function exec() {
 
   window.__API__.onActivate((index) => {
     const elem = document.querySelector<HTMLElement>(index.id)
-    console.log('active:', index, elem)
     if (elem) {
       elem.click()
     }
@@ -55,37 +62,36 @@ function exec() {
       event.stopImmediatePropagation()
 
       let handleElem = event.target as HTMLElement
-      const index: BindingElement = { id: '' }
+      const element: BindingElement = { id: '' }
 
       for (let i = 0; i < DEEP_SEARCH; i++) {
-        if (checkElementIsBindable(handleElem)) {
-          index.type = handleElem.nodeName as BindableElementType
+        if ( checkElementIsBindable(handleElem) ) {
+          element.type = handleElem.nodeName as BindableElementType
           break
         }
-
         if (handleElem.parentElement != null) {
           handleElem = handleElem.parentElement
         }
       }
 
-      if (!index.type) {
+      if (!element.type) {
         alert('Не найден соответсвующий элемент')
         return
       }
-
-      index.id = handleElem.id
-      window.__API__.sendBindingElement(index)
+      
+      element.id = handleElem.id
+      if(!element.id) {
+        element.id = generatorId.next().value
+      }
+     
+      window.__API__.sendBindingElement(element)
     },
     { capture: true }
   )
 }
 
 function injectCSS(): string {
-  return ` 
-  button, input, textarea {
-    position: relative !important;
-    z-index: 20000 !important; 
-  }
+  return `
   body.selectionMode{
     cursor: pointer !important;
   }

@@ -17,6 +17,9 @@
       ],
       "@components/*": [
         "src/renderer/src/components/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
       ]
     }
   }

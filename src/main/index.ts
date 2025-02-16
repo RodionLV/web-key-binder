@@ -81,6 +81,7 @@ const initHandlers = ({ view, win }) => {
   })
 
   ipcMain.on(IPC_EVENTS.SET_BINDING_ELEMENT, (_event, elem) => {
+    console.log(elem)
     win.webContents.send(IPC_EVENTS.ON_SELECT_ELEMENT, elem)
   })
 
@@ -101,7 +102,8 @@ const initHandlers = ({ view, win }) => {
   })
 
   ipcMain.on(IPC_EVENTS.SET_OPTIONS, (_e, options) => {
-    view.webContents.send('options', options)
+    console.log(options)
+    view.webContents.send(IPC_EVENTS.ON_CHANGE_OPTIONS, options)
   })
 }
 

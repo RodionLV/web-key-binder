@@ -2,7 +2,8 @@
 import SearchIcon from '@renderer/assets/icons/search-icon.svg'
 
 const { modelValue: url } = defineProps({
-  modelValue: { type: String, default: '' }
+  modelValue: { type: String, default: '' },
+  placeholder: { type: String, default: '' }
 })
 
 const emit = defineEmits(['update:click', 'update:modelValue'])
@@ -14,7 +15,12 @@ const onInput = (e) => {
 
 <template>
   <div class="search-line__box f-row">
-    <input class="search-line__url" :value="url" @input="onInput" />
+    <input
+      class="search-line__url"
+      :placeholder="placeholder"
+      :value="url"
+      @input="onInput"
+    />
     <button class="search-line__btn" @click="emit('update:click', null)">
       <img :src="SearchIcon" class="search-line__icon" />
     </button>
@@ -35,6 +41,7 @@ const onInput = (e) => {
   }
 
   &__url {
+    flex: 1 1 100%;
     padding: 0 1em;
 
     border-radius: 0.8em 0 0 0.8em;
