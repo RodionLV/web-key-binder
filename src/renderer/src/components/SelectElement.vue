@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
+import UiField from '@components/UI/UiField.vue'
 
 import SelectIcon from '@renderer/assets/icons/select-icon.svg'
 import CloseIcon from '@renderer/assets/icons/close-icon.svg'
@@ -20,20 +21,27 @@ window.__API__.onSelectedElement((elem) => {
   emit('update:element', elem)
 })
 
-const elementToString = (element) => `type: ${element.type}, id: ${element.id}`
+const elementToString = (element) =>
+  `type: ${element.type}, id: ${element.id}`
 </script>
 
 <template>
   <div class="select__box">
-    <div class="select__element">
-      <span v-if="element" class="select__value">{{ elementToString(element) }}</span>
+    <ui-field class="select__element f-row">
+      <span v-if="element" class="select__value">{{
+        elementToString(element)
+      }}</span>
       <span v-else class="select__placeholder">{{ placeholder }}</span>
-    </div>
+    </ui-field>
+
     <ui-button
       class="select__toggle"
       @click="emit('update:selectionMode', !selectionMode)"
     >
-      <img :src="selectionMode ? CloseIcon : SelectIcon" class="select__icon" />
+      <img
+        :src="selectionMode ? CloseIcon : SelectIcon"
+        class="select__icon"
+      />
     </ui-button>
   </div>
 </template>
@@ -46,9 +54,6 @@ const elementToString = (element) => `type: ${element.type}, id: ${element.id}`
     display: flex;
     gap: 0.4em;
 
-    max-height: 2rem;
-    height: 100%;
-
     font-size: 0.8em;
   }
   &__box > * {
@@ -57,13 +62,7 @@ const elementToString = (element) => `type: ${element.type}, id: ${element.id}`
   &__element {
     height: 100%;
     flex: 1 1 100%;
-    display: flex;
     align-items: center;
-
-    padding: 0 0.8em;
-
-    background-color: var(--bg-input);
-    border: 2px solid rgb(105, 105, 105);
   }
   &__value {
     color: black;

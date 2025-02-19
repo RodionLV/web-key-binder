@@ -70,21 +70,21 @@ const setShortcut = () => {
             placeholder="Isn't selected element"
           />
         </ui-label>
-      </ui-card>
 
-      <div class="binder">
-        <shortcut-input v-model:keys="bind.shortcut" />
+        <ui-label name="Set shortcut:">
+          <shortcut-input
+            v-model:keys="bind.shortcut"
+            class="menu__shortcut"
+          />
+        </ui-label>
 
         <ui-button @click="setShortcut">Bind</ui-button>
-        <div class="binder__list"></div>
-      </div>
+      </ui-card>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.main {
-}
 .menu {
   width: 100%;
 
@@ -95,6 +95,10 @@ const setShortcut = () => {
 
   &__binder {
     gap: 12px;
+  }
+
+  &__shortcut {
+    height: 2.2rem;
   }
 }
 </style>

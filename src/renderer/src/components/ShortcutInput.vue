@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import UiButton from '@components/UI/UiButton.vue'
+import UiField from '@components/UI/UiField.vue'
+import ShortcutValue from '@components/ShortcutValue.vue'
 
 import { reactive, computed } from 'vue'
 
@@ -51,11 +53,13 @@ const onKeyDown = (event) => {
 
 <template>
   <div class="shortcut__box">
-    <button class="shortcut__input" @keydown="onKeyDown">
-      {{ keysArr.join(' + ') }}
+    <button class="shortcut__assign" @keydown="onKeyDown">
+      <ui-field class="shortcut__field f-row.all-center">
+        <shortcut-value :keys="keysArr" class="f-row.v-center" />
+      </ui-field>
     </button>
 
-    <ui-button class="shortcut__reset" @click="reset">Сброс</ui-button>
+    <ui-button class="shortcut__reset" @click="reset">reset</ui-button>
   </div>
 </template>
 
@@ -67,23 +71,20 @@ const onKeyDown = (event) => {
   }
 
   &__reset {
-    padding: 0.2em 0.6em;
+    flex: 1 0 100%;
+    max-width: 80px;
+    padding: 0 0.8em;
     border-radius: 0.2em;
     border: none;
   }
 
-  &__input {
-    outline: none;
-
-    padding: 0.2em 0.6em;
-
+  &__assign {
+    background: none;
     flex: 1 1 100%;
-    min-width: 100px;
-    height: 2em;
+  }
 
-    background-color: silver;
-    border: none;
-    border-radius: 0.2em;
+  &__field {
+    height: 100%;
   }
 }
 </style>
