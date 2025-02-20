@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string"
+    },
+
+    "element": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["BUTTON", "INPUT", "TEXTAREA"] }
+      }
+    },
+
+    "shortcut": {
+      "elements": {
+        "type": "string"
+      }
+    }
+  }
+}
