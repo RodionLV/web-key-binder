@@ -15,7 +15,7 @@ declare const window: {
 
 interface Profile {
   url: ''
-  binds: BindedElementAndShortcut[]
+  binds: ElementBindType[]
 }
 
 const profile = reactive<Profile>({
@@ -27,10 +27,20 @@ const viewOptions = reactive<ViewOptions>({
   selectionMode: false
 })
 
-const bind = reactive<BindedElementAndShortcut>({
+const bind = reactive<ElementBindType>({
   element: undefined,
   shortcut: []
 })
+
+async function initProfile() {
+  const items = await window.__API__.getAllBindByUrl(profile.url)
+
+  profile.url = items[0]?.url || profile.url
+
+  for (const item of items) {
+    profile.binds.push({ element: item.element, shortcut: item.shortcut })
+  }
+}
 
 watch(
   () => viewOptions.selectionMode,
@@ -45,8 +55,12 @@ const loadPage = () => {
 
 const setShortcut = () => {
   profile.binds.push(bind)
-  window.__API__.setShortcut(bind)
+  window.__API__.setShortcut({ url: profile.url, ...bind })
+  // TODO: bind only when set element and shortcut
+  // TODO: if success to register then push to binds
 }
+
+initProfile()
 </script>
 
 <template>
@@ -79,6 +93,13 @@ const setShortcut = () => {
         </ui-label>
 
         <ui-button @click="setShortcut">Bind</ui-button>
+      </ui-card>
+
+      <ui-card>
+        <div v-for="item in profile.binds">
+          <div>id: {{ item.element?.id }}</div>
+          <div>{{ item.shortcut.join('+') }}</div>
+        </div>
       </ui-card>
     </div>
   </div>

@@ -2,7 +2,7 @@
 defineProps({
   keys: { type: Array<string>, default: [] }
 })
-
+// TODO: fix size field
 const formatKeysForPrint = (arrKeys) => {
   if (arrKeys.length < 2) {
     return arrKeys

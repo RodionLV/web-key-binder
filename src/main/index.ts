@@ -11,6 +11,7 @@ import { join } from 'path'
 
 import { injectScript, injectCSS } from './inject'
 import { IPC_EVENTS } from '../utils/consts'
+import { elementBindStore } from '../db/stores/element_bind_store'
 
 const boundsView = {
   width: 800,
@@ -85,21 +86,25 @@ const initHandlers = ({ view, win }) => {
     win.webContents.send(IPC_EVENTS.ON_SELECT_ELEMENT, elem)
   })
 
-  ipcMain.on(IPC_EVENTS.SET_SHORTCUT, (_event, { keys, index }) => {
-    const shortcut = keys.join('+')
-    console.log(shortcut)
-    const ret = globalShortcut.register(shortcut, () => {
-      view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, index)
-    })
+  ipcMain.on(
+    IPC_EVENTS.SET_SHORTCUT,
+    (_event, { url, shortcut, element }) => {
+      const joinedShortcut = shortcut.join('+')
+      console.log(shortcut)
+      const ret = globalShortcut.register(joinedShortcut, () => {
+        view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, element)
+      })
 
-    if (!ret) {
-      console.log('registration failed for shortcut:', shortcut)
-    }
+      if (!ret) {
+        console.log('registration failed for shortcut:', joinedShortcut)
+      }
 
-    if (globalShortcut.isRegistered(shortcut)) {
-      console.log('registration succesed for shortcut:', shortcut)
+      if (globalShortcut.isRegistered(shortcut)) {
+        elementBindStore.create({ url, element, shortcut })
+        console.log('registration succesed for shortcut:', shortcut)
+      }
     }
-  })
+  )
 
   ipcMain.on(IPC_EVENTS.SET_OPTIONS, (_e, options) => {
     console.log(options)

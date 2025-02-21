@@ -1,14 +1,6 @@
 import Datastore from 'nedb-promises'
 
 import { ajv, Ajv } from './validation'
-import type { BindingElement, Shortcut } from '../../types/types'
-
-interface ElementBindType {
-  _id?: string
-  url: string
-  element: BindingElement
-  shortcut: Shortcut
-}
 
 class ElementBindStore {
   private validator: Ajv.ValidateFunction
@@ -28,30 +20,36 @@ class ElementBindStore {
     return this.validator(data)
   }
 
-  getAll(): ElementBindType[] {
-    return []
+  getAll(): Promise<ElementBindType[]> {
+    return this.store.find({}).exec()
   }
 
-  getById(id: string): ElementBindType | null {
-    return null
+  getById(id: string): Promise<ElementBindType | null> {
+    return this.store.findOne({ _id: id }).exec()
   }
 
-  getAllByUrl(url: string): ElementBindType[] {
-    return []
+  getAllByUrl(url: string): Promise<ElementBindType[]> {
+    return this.store.find({ url }).exec()
   }
 
-  create(data: ElementBindType) {
+  create(data: ElementBindType): Promise<ElementBindType | null> {
     if (!this.validate(data)) {
-      console.log('Error: invalid data')
-      return // check promisses
+      console.log('Error: invalid data', data)
+      return new Promise((resolve) => resolve(null))
     }
 
     return this.store.insert(data)
   }
 
-  deleteById(id: string) {}
+  deleteById(id: string): Promise<number> {
+    return this.store.removeOne({ _id: id }, { multi: false })
+  }
 
-  deleteAllByUrl(url: string) {}
+  deleteAllByUrl(url: string): Promise<number> {
+    return this.store.remove({ url }, { multi: true })
+  }
 }
 
-export const elementBindStore = new ElementBindStore()
+const elementBindStore = new ElementBindStore()
+
+export { elementBindStore, ElementBindStore }
