@@ -13,6 +13,8 @@ import { injectScript, injectCSS } from './inject'
 import { IPC_EVENTS } from '../utils/consts'
 import { elementBindStore } from '../db/stores/element_bind_store'
 
+import { ElementBindType } from '../types/types'
+
 const boundsView = {
   width: 800,
   height: 670,
@@ -88,9 +90,8 @@ const initHandlers = ({ view, win }) => {
 
   ipcMain.on(
     IPC_EVENTS.SET_SHORTCUT,
-    (_event, { url, shortcut, element }) => {
+    (_event, { url, shortcut, element }: ElementBindType) => {
       const joinedShortcut = shortcut.join('+')
-      console.log(shortcut)
       const ret = globalShortcut.register(joinedShortcut, () => {
         view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, element)
       })
@@ -99,9 +100,9 @@ const initHandlers = ({ view, win }) => {
         console.log('registration failed for shortcut:', joinedShortcut)
       }
 
-      if (globalShortcut.isRegistered(shortcut)) {
+      if (globalShortcut.isRegistered(joinedShortcut)) {
         elementBindStore.create({ url, element, shortcut })
-        console.log('registration succesed for shortcut:', shortcut)
+        console.log('creation succesed for shortcut:', joinedShortcut)
       }
     }
   )

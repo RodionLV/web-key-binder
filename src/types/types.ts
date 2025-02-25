@@ -1,34 +1,42 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-type BindableElementType = 'BUTTON' | 'INPUT' | 'TEXTAREA'
+export type BindableElementType = 'BUTTON' | 'INPUT' | 'TEXTAREA'
 
-type Shortcut = string[]
+export type Shortcut = string[]
 
-interface ElementBindType {
+export interface ElementBindType {
   _id?: string
   url?: string
   element?: BindingElement
   shortcut: Shortcut
 }
 
-interface BindingElement {
+export interface BindingElement {
   id: string
   type?: BindableElementType
 }
 
-interface ViewOptions {
+export interface ViewOptions {
   selectionMode: boolean
 }
 
-interface ViewApi {
+export interface ViewApi {
   sendBindingElement: (elem: BindingElement) => void
   onActivate: (cb: (elem: BindingElement) => void) => void
   onChangeOptions: (cb: (options: ViewOptions) => void) => void
 }
 
-interface MainApi {
+export interface MainApi {
   setViewUrl: (url: string) => void
-  setShortcut: (bind: ElementBindType) => void
+  setShortcut: (url: string, element: BindingElement, shorcut: Shortcut) => void
   setOptions: (options: ViewOptions) => void
   onSelectedElement: (cb: (elem: BindingElement) => void) => void
-  getAllBindByUrl: (_url) => Promise<ElementBindType[]>
+  getAllBindByUrl: (url: string) => Promise<ElementBindType[]>
+  deleteById: (id: string) => Promise<number>
+}
+
+export interface ViewWindow extends Window {
+  __API__: ViewApi
+}
+
+export interface MainWindow extends Window {
+  __API__: MainApi
 }

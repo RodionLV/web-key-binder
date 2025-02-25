@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import { IPC_EVENTS } from '../utils/consts.js'
+import { IPC_EVENTS } from '../utils/consts'
 
-declare const window: {
-  __API__: ViewApi
-} & Window
+import { ViewWindow, ViewApi } from '../types/types'
+
+declare const window: ViewWindow
 
 const api: ViewApi = {
   sendBindingElement: (index) =>

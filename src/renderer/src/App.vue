@@ -5,16 +5,22 @@ import UiLabel from '@components/UI/UiLabel.vue'
 import SelectElement from '@components/SelectElement.vue'
 import ShortcutInput from '@components/ShortcutInput.vue'
 import SearchLine from '@components/SearchLine.vue'
+import ShortcutItems from '@components/ShortcutItems.vue'
 
 import { reactive, watch } from 'vue'
 import { shallowClone } from '@utils/obj_util'
 
-declare const window: {
-  __API__: MainApi
-} & Window
+import {
+  MainWindow,
+  ElementBindType,
+  ViewOptions,
+  BindingElement
+} from 'src/types/types'
+
+declare const window: MainWindow
 
 interface Profile {
-  url: ''
+  url: string
   binds: ElementBindType[]
 }
 
@@ -38,7 +44,11 @@ async function initProfile() {
   profile.url = items[0]?.url || profile.url
 
   for (const item of items) {
-    profile.binds.push({ element: item.element, shortcut: item.shortcut })
+    profile.binds.push({
+      _id: item._id,
+      element: item.element,
+      shortcut: item.shortcut
+    })
   }
 }
 
@@ -55,9 +65,19 @@ const loadPage = () => {
 
 const setShortcut = () => {
   profile.binds.push(bind)
-  window.__API__.setShortcut({ url: profile.url, ...bind })
+
+  window.__API__.setShortcut(
+    profile.url,
+    { ...(bind.element as BindingElement) },
+    [...bind.shortcut]
+  )
   // TODO: bind only when set element and shortcut
   // TODO: if success to register then push to binds
+}
+
+const clearDeletedBind = (id: string) => {
+  console.log('clear deleted bind')
+  profile.binds = profile.binds.filter((item) => item._id != id)
 }
 
 initProfile()
@@ -86,20 +106,17 @@ initProfile()
         </ui-label>
 
         <ui-label name="Set shortcut:">
-          <shortcut-input
-            v-model:keys="bind.shortcut"
-            class="menu__shortcut"
-          />
+          <shortcut-input v-model:keys="bind.shortcut" class="menu__shortcut" />
         </ui-label>
 
-        <ui-button @click="setShortcut">Bind</ui-button>
+        <ui-button class="menu__bind-btn" @click="setShortcut">Bind</ui-button>
       </ui-card>
 
       <ui-card>
-        <div v-for="item in profile.binds">
-          <div>id: {{ item.element?.id }}</div>
-          <div>{{ item.shortcut.join('+') }}</div>
-        </div>
+        <shortcut-items
+          :binds="profile.binds"
+          @deleted-bind="clearDeletedBind"
+        />
       </ui-card>
     </div>
   </div>
@@ -115,11 +132,15 @@ initProfile()
   }
 
   &__binder {
-    gap: 12px;
+    gap: 0.4rem;
   }
 
   &__shortcut {
     height: 2.2rem;
+  }
+
+  &__bind-btn {
+    margin-top: 1.1rem;
   }
 }
 </style>

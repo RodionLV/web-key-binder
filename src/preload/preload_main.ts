@@ -1,22 +1,26 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { elementBindStore } from '../db/stores/element_bind_store.js'
 
-import { IPC_EVENTS } from '../utils/consts.js'
+import { IPC_EVENTS } from '../utils/consts'
 
-declare const window: {
-  __API__: MainApi
-} & Window
+import { MainWindow, MainApi } from '../types/types'
+
+declare const window: MainWindow
 
 const api: MainApi = {
   setViewUrl: (url) => ipcRenderer.send(IPC_EVENTS.SET_VIEW_URL, url),
-  setShortcut: (bind) => ipcRenderer.send(IPC_EVENTS.SET_SHORTCUT, bind),
+  setShortcut: (url, element, shortcut) =>
+    ipcRenderer.send(IPC_EVENTS.SET_SHORTCUT, {
+      url,
+      element,
+      shortcut
+    }),
   onSelectedElement: (cb) =>
-    ipcRenderer.on(IPC_EVENTS.ON_SELECT_ELEMENT, (_event, elem) =>
-      cb(elem)
-    ),
-  setOptions: (options) =>
-    ipcRenderer.send(IPC_EVENTS.SET_OPTIONS, options),
-  getAllBindByUrl: (_url) => elementBindStore.getAll()
+    ipcRenderer.on(IPC_EVENTS.ON_SELECT_ELEMENT, (_event, elem) => cb(elem)),
+  setOptions: (options) => ipcRenderer.send(IPC_EVENTS.SET_OPTIONS, options),
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getAllBindByUrl: (url) => elementBindStore.getAll(),
+  deleteById: (id) => elementBindStore.deleteById(id)
 }
 
 if (process.contextIsolated) {
