@@ -1,6 +1,6 @@
 # web-key-binder
 
-An Electron application with Vue
+Web key binder is the application for binding an active element from a page on a shortcut
 
 ## Recommended IDE Setup
 

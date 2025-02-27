@@ -3,6 +3,7 @@ import {
   shell,
   BrowserWindow,
   globalShortcut,
+  clipboard,
   WebContentsView,
   ipcMain
 } from 'electron'
@@ -14,7 +15,12 @@ import { IPC_EVENTS } from '../utils/consts'
 import { isNotUndefined } from '../utils/type.utils'
 import { elementBindStore } from '../db/stores/element_bind_store'
 
-import { ElementBindType, Shortcut } from '../types/types'
+import {
+  ElementBindType,
+  Shortcut,
+  BindingElement,
+  ViewData
+} from '../types/types'
 
 const boundsView = {
   width: 800,
@@ -47,12 +53,7 @@ function createWindow() {
   win.contentView.addChildView(view)
   view.setBounds(boundsView)
 
-  view.webContents
-    .loadURL('https://translate.google.com/?sl=auto&tl=en&op=translate')
-    .then(() => {
-      view.webContents.insertCSS(injectCSS())
-      view.webContents.executeJavaScript(injectScript())
-    })
+  loadPage(view, 'https://translate.google.com/?sl=auto&tl=en&op=translate')
 
   win.on('ready-to-show', () => {
     win.show()
@@ -79,8 +80,25 @@ function createWindow() {
   }
 }
 
-const onActiveShortcut = (view, element) => {
-  view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, element)
+const loadPage = (view: WebContentsView, url: string) => {
+  view.webContents.loadURL(url).then(() => {
+    view.webContents.insertCSS(injectCSS())
+    view.webContents.executeJavaScript(injectScript())
+  })
+}
+
+const onActiveShortcut = (view, element?: BindingElement) => {
+  if (element == undefined || element?.type == undefined) {
+    return
+  }
+
+  const data: ViewData = { element }
+
+  if (['TEXTAREA', 'INPUT'].indexOf(element.type) !== -1) {
+    data.clipboard = clipboard.readText('clipboard')
+  }
+
+  view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, data)
 }
 
 const registerAllShortcuts = async (view) => {
@@ -95,7 +113,7 @@ const registerAllShortcuts = async (view) => {
 
 const initHandlers = ({ view, win }) => {
   ipcMain.on(IPC_EVENTS.SET_VIEW_URL, (_event, url) => {
-    view.webContents.loadURL(url)
+    loadPage(view, url)
   })
 
   ipcMain.on(IPC_EVENTS.SET_BINDING_ELEMENT, (_event, elem) => {

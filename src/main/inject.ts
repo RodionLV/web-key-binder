@@ -42,10 +42,20 @@ function exec() {
   }
   setupPage()
 
-  window.__API__.onActivate((index) => {
-    const elem = document.querySelector<HTMLElement>(index.id)
+  window.__API__.onActivate(({ element, clipboard = '' }) => {
+    if (!element?.type) {
+      return
+    }
+    console.log('activate')
+    const elem = document.querySelector<HTMLElement>(`#${element.id}`)
     if (elem) {
-      elem.click()
+      if (['INPUT', 'TEXTAREA'].indexOf(element.type) == -1) {
+        elem.click()
+        console.log('click')
+      } else {
+        console.log('paste clipboard')
+        ;(elem as HTMLInputElement).value = clipboard
+      }
     }
   })
 
@@ -86,6 +96,8 @@ function exec() {
       element.id = handleElem.id
       if (!element.id) {
         element.id = generatorId.next().value
+        handleElem.id = element.id
+        // TODO: mark unreliable index
       }
 
       window.__API__.sendBindingElement(element)

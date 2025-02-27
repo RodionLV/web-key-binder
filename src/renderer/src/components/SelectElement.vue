@@ -5,6 +5,8 @@ import UiField from '@components/UI/UiField.vue'
 import SelectIcon from '@renderer/assets/icons/select-icon.svg'
 import CloseIcon from '@renderer/assets/icons/close-icon.svg'
 
+import { MainApi, BindingElement } from 'src/types/types'
+
 declare const window: {
   __API__: MainApi
 } & Window
@@ -21,8 +23,7 @@ window.__API__.onSelectedElement((elem) => {
   emit('update:element', elem)
 })
 
-const elementToString = (element) =>
-  `type: ${element.type}, id: ${element.id}`
+const elementToString = (element) => `type: ${element.type}, id: ${element.id}`
 </script>
 
 <template>
@@ -38,10 +39,7 @@ const elementToString = (element) =>
       class="select__toggle"
       @click="emit('update:selectionMode', !selectionMode)"
     >
-      <img
-        :src="selectionMode ? CloseIcon : SelectIcon"
-        class="select__icon"
-      />
+      <img :src="selectionMode ? CloseIcon : SelectIcon" class="select__icon" />
     </ui-button>
   </div>
 </template>

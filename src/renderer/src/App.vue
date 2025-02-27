@@ -48,8 +48,6 @@ async function getBinds() {
       ? await window.__API__.getAllBindsByUrl(profile.url)
       : await window.__API__.getAllBinds()
 
-  console.log('items =', items)
-
   const binds: ElementBindType[] = []
   for (const item of items) {
     binds.push({
@@ -70,9 +68,6 @@ watch(
 )
 
 const loadPage = () => {
-  console.log(
-    'load'
-  )
   window.__API__.setViewUrl(profile.url)
   getBinds()
 }
@@ -97,6 +92,12 @@ const clearDeletedBind = (id: string) => {
 }
 
 getBinds()
+
+// TODO: add loading while script will not injected
+// TODO: add column with site from bind
+// TODO: check if shortcut is busy
+// TODO: if table empty
+// TODO: the abilit set manually id element
 </script>
 
 <template>

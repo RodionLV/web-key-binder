@@ -23,9 +23,14 @@ export interface ViewOptions {
   selectionMode: boolean
 }
 
+export interface ViewData {
+  element: BindingElement,
+  clipboard?: string
+}
+
 export interface ViewApi {
   sendBindingElement: (elem: BindingElement) => void
-  onActivate: (cb: (elem: BindingElement) => void) => void
+  onActivate: (cb: (data: ViewData) => void) => void
   onChangeOptions: (cb: (options: ViewOptions) => void) => void
 }
 

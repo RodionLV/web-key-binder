@@ -10,9 +10,7 @@ const api: ViewApi = {
   sendBindingElement: (index) =>
     ipcRenderer.send(IPC_EVENTS.SET_BINDING_ELEMENT, index),
   onActivate: (cb) =>
-    ipcRenderer.on(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, (_event, index) =>
-      cb(index)
-    ),
+    ipcRenderer.on(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, (_event, data) => cb(data)),
   onChangeOptions: (cb) =>
     ipcRenderer.on(IPC_EVENTS.ON_CHANGE_OPTIONS, (_event, options) =>
       cb(options)

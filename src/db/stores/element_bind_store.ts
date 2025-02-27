@@ -14,7 +14,8 @@ class ElementBindStore {
     ) as Ajv.ValidateFunction
 
     this.store = Datastore.create({
-      filename: `${process.cwd()}/db/element_bind.db`
+      filename: `${process.cwd()}/db/element_bind.db`,
+      autoload: true
     })
   }
 
