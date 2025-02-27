@@ -2,6 +2,8 @@ import Datastore from 'nedb-promises'
 
 import { ajv, Ajv } from './validation'
 
+import { ElementBindType } from '../../types/types'
+
 class ElementBindStore {
   private validator: Ajv.ValidateFunction
   private store: Datastore<ElementBindType>
@@ -26,6 +28,13 @@ class ElementBindStore {
 
   getById(id: string): Promise<ElementBindType | null> {
     return this.store.findOne({ _id: id }).exec()
+  }
+
+  getByUrlAndElementId(
+    url: string,
+    elementId: string
+  ): Promise<ElementBindType | null> {
+    return this.store.findOne({ url: url, 'element.id': elementId }).exec()
   }
 
   getAllByUrl(url: string): Promise<ElementBindType[]> {

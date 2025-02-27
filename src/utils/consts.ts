@@ -6,5 +6,7 @@ export const IPC_EVENTS = {
 
   ON_ACTIVATE_SHORTCUT: 'on_activate_shortcut',
   ON_SELECT_ELEMENT: 'on_select_element',
-  ON_CHANGE_OPTIONS: 'on_change_options'
+  ON_CHANGE_OPTIONS: 'on_change_options',
+
+  DELETE_BIND: 'delete_bind'
 }

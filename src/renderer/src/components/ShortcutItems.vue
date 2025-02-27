@@ -14,12 +14,11 @@ const { binds = [] } = defineProps<{
 
 const emit = defineEmits(['deleted-bind'])
 
-const deleteBind = async (bind: ElementBindType) => {
+const deleteBind = (bind: ElementBindType) => {
   console.log('delete', bind)
   if (bind?._id) {
-    const n = await window.__API__.deleteById(bind._id)
+    window.__API__.deleteBind(bind._id, [...bind.shortcut])
 
-    console.log(n)
     emit('deleted-bind', bind._id)
   }
 }

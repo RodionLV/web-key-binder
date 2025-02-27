@@ -7,8 +7,8 @@ import ShortcutInput from '@components/ShortcutInput.vue'
 import SearchLine from '@components/SearchLine.vue'
 import ShortcutItems from '@components/ShortcutItems.vue'
 
-import { reactive, watch } from 'vue'
-import { shallowClone } from '@utils/obj_util'
+import { reactive, watch, ref } from 'vue'
+import { shallowClone } from '@utils/obj.util'
 
 import {
   MainWindow,
@@ -38,17 +38,27 @@ const bind = reactive<ElementBindType>({
   shortcut: []
 })
 
-async function initProfile() {
-  const items = await window.__API__.getAllBindByUrl(profile.url)
+const bindError = ref<string>('')
 
-  profile.url = items[0]?.url || profile.url
+async function getBinds() {
+  console.log('get binds')
 
+  const items =
+    profile.url !== ''
+      ? await window.__API__.getAllBindsByUrl(profile.url)
+      : await window.__API__.getAllBinds()
+
+  console.log('items =', items)
+
+  const binds: ElementBindType[] = []
   for (const item of items) {
-    profile.binds.push({
+    binds.push({
       _id: item._id,
       element: item.element,
       shortcut: item.shortcut
     })
+
+    profile.binds = binds
   }
 }
 
@@ -60,19 +70,25 @@ watch(
 )
 
 const loadPage = () => {
+  console.log(
+    'load'
+  )
   window.__API__.setViewUrl(profile.url)
+  getBinds()
 }
 
-const setShortcut = () => {
-  profile.binds.push(bind)
-
-  window.__API__.setShortcut(
+const setShortcut = async () => {
+  const { error, result } = await window.__API__.setShortcut(
     profile.url,
     { ...(bind.element as BindingElement) },
     [...bind.shortcut]
   )
-  // TODO: bind only when set element and shortcut
-  // TODO: if success to register then push to binds
+
+  if (result) {
+    profile.binds.push(result)
+  } else {
+    bindError.value = error || ''
+  }
 }
 
 const clearDeletedBind = (id: string) => {
@@ -80,7 +96,7 @@ const clearDeletedBind = (id: string) => {
   profile.binds = profile.binds.filter((item) => item._id != id)
 }
 
-initProfile()
+getBinds()
 </script>
 
 <template>
@@ -92,7 +108,7 @@ initProfile()
         <search-line
           v-model="profile.url"
           :placeholder="'https://'"
-          @click="loadPage"
+          @update:load="loadPage"
         />
       </ui-label>
 
@@ -110,6 +126,8 @@ initProfile()
         </ui-label>
 
         <ui-button class="menu__bind-btn" @click="setShortcut">Bind</ui-button>
+
+        <div class="menu__error">{{ bindError }}</div>
       </ui-card>
 
       <ui-card>

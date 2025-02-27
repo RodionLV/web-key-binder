@@ -2,6 +2,11 @@ export type BindableElementType = 'BUTTON' | 'INPUT' | 'TEXTAREA'
 
 export type Shortcut = string[]
 
+export interface Reply<V> {
+  error: string | null
+  result: V
+}
+
 export interface ElementBindType {
   _id?: string
   url?: string
@@ -26,11 +31,16 @@ export interface ViewApi {
 
 export interface MainApi {
   setViewUrl: (url: string) => void
-  setShortcut: (url: string, element: BindingElement, shorcut: Shortcut) => void
+  setShortcut: (
+    url: string,
+    element: BindingElement,
+    shorcut: Shortcut
+  ) => Promise<Reply<ElementBindType | null>>
   setOptions: (options: ViewOptions) => void
   onSelectedElement: (cb: (elem: BindingElement) => void) => void
-  getAllBindByUrl: (url: string) => Promise<ElementBindType[]>
-  deleteById: (id: string) => Promise<number>
+  getAllBindsByUrl: (url: string) => Promise<ElementBindType[]>
+  getAllBinds: () => Promise<ElementBindType[]>
+  deleteBind: (id: string, shortcut: Shortcut) => void
 }
 
 export interface ViewWindow extends Window {

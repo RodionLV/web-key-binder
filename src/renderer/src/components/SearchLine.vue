@@ -6,7 +6,7 @@ const { modelValue: url } = defineProps({
   placeholder: { type: String, default: '' }
 })
 
-const emit = defineEmits(['update:click', 'update:modelValue'])
+const emit = defineEmits(['update:load', 'update:modelValue'])
 
 const onInput = (e) => {
   emit('update:modelValue', (e.target as HTMLInputElement).value)
@@ -21,7 +21,7 @@ const onInput = (e) => {
       :value="url"
       @input="onInput"
     />
-    <button class="search-line__btn" @click="emit('update:click', null)">
+    <button class="search-line__btn" @click="emit('update:load', null)">
       <img :src="SearchIcon" class="search-line__icon" />
     </button>
   </div>

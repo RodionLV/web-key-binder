@@ -1,4 +1,9 @@
-// import type { ViewApi } from '../types/types'
+import type {
+  ViewApi,
+  ViewOptions,
+  BindingElement,
+  BindableElementType
+} from '../types/types'
 
 declare const window: {
   __API__: ViewApi
@@ -18,9 +23,9 @@ function exec() {
     selectionMode: false
   }
 
-  function* generateElementId() {
+  function* generateElementId(): Generator<string, string, void> {
     let id = 0
-    while(true) {
+    while (true) {
       yield `_uniq_id_${id++}`
     }
   }
@@ -28,7 +33,6 @@ function exec() {
 
   function setupPage() {
     const elements = document.querySelectorAll('textarea, input, button')
-    let i = 0
 
     for (const elem of elements) {
       if (elem.id == '') {
@@ -65,7 +69,7 @@ function exec() {
       const element: BindingElement = { id: '' }
 
       for (let i = 0; i < DEEP_SEARCH; i++) {
-        if ( checkElementIsBindable(handleElem) ) {
+        if (checkElementIsBindable(handleElem)) {
           element.type = handleElem.nodeName as BindableElementType
           break
         }
@@ -78,12 +82,12 @@ function exec() {
         alert('Не найден соответсвующий элемент')
         return
       }
-      
+
       element.id = handleElem.id
-      if(!element.id) {
+      if (!element.id) {
         element.id = generatorId.next().value
       }
-     
+
       window.__API__.sendBindingElement(element)
     },
     { capture: true }

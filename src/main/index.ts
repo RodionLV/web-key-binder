@@ -11,9 +11,10 @@ import { join } from 'path'
 
 import { injectScript, injectCSS } from './inject'
 import { IPC_EVENTS } from '../utils/consts'
+import { isNotUndefined } from '../utils/type.utils'
 import { elementBindStore } from '../db/stores/element_bind_store'
 
-import { ElementBindType } from '../types/types'
+import { ElementBindType, Shortcut } from '../types/types'
 
 const boundsView = {
   width: 800,
@@ -78,32 +79,78 @@ function createWindow() {
   }
 }
 
+const onActiveShortcut = (view, element) => {
+  view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, element)
+}
+
+const registerAllShortcuts = async (view) => {
+  const items = await elementBindStore.getAll()
+
+  for (const item of items) {
+    globalShortcut.register(item.shortcut.join('+'), () =>
+      onActiveShortcut(view, item.element)
+    )
+  }
+}
+
 const initHandlers = ({ view, win }) => {
   ipcMain.on(IPC_EVENTS.SET_VIEW_URL, (_event, url) => {
     view.webContents.loadURL(url)
   })
 
   ipcMain.on(IPC_EVENTS.SET_BINDING_ELEMENT, (_event, elem) => {
-    console.log(elem)
+    console.log('selected element:', elem)
     win.webContents.send(IPC_EVENTS.ON_SELECT_ELEMENT, elem)
   })
 
   ipcMain.on(
-    IPC_EVENTS.SET_SHORTCUT,
-    (_event, { url, shortcut, element }: ElementBindType) => {
-      const joinedShortcut = shortcut.join('+')
-      const ret = globalShortcut.register(joinedShortcut, () => {
-        view.webContents.send(IPC_EVENTS.ON_ACTIVATE_SHORTCUT, element)
-      })
+    IPC_EVENTS.DELETE_BIND,
+    (_e, { id, shortcut }: { id: string; shortcut: Shortcut }) => {
+      console.log(id, shortcut)
+      globalShortcut.unregister(shortcut.join('+'))
+      elementBindStore.deleteById(id)
+    }
+  )
 
-      if (!ret) {
-        console.log('registration failed for shortcut:', joinedShortcut)
-      }
+  ipcMain.handle(
+    IPC_EVENTS.SET_SHORTCUT,
+    async (_event, { url, shortcut, element }: ElementBindType) => {
+      if (!isNotUndefined(url))
+        return { error: 'url is undefined', result: null }
+      if (!isNotUndefined(element))
+        return { error: 'element is undefined', result: null }
+
+      const joinedShortcut = shortcut.join('+')
+      const ret = globalShortcut.register(joinedShortcut, () =>
+        onActiveShortcut(view, element)
+      )
+
+      if (!ret)
+        return {
+          error: `registration failed for shortcut ${joinedShortcut}`,
+          result: null
+        }
+
+      const isExist = !!(await elementBindStore.getByUrlAndElementId(
+        url,
+        element.id
+      ))
+
+      console.log('isExist =', isExist)
+      if (isExist) return { error: 'bind is already exist', result: null }
 
       if (globalShortcut.isRegistered(joinedShortcut)) {
-        elementBindStore.create({ url, element, shortcut })
+        const createdElement = await elementBindStore.create({
+          url,
+          element,
+          shortcut
+        })
+
         console.log('creation succesed for shortcut:', joinedShortcut)
+        return { error: null, result: createdElement }
       }
+
+      return { error: 'unknown error', result: null }
     }
   )
 
@@ -114,7 +161,10 @@ const initHandlers = ({ view, win }) => {
 }
 
 const startApp = () => {
-  initHandlers(createWindow())
+  const { view, win } = createWindow()
+
+  initHandlers({ view, win })
+  registerAllShortcuts(view)
 }
 
 app.whenReady().then(() => {
